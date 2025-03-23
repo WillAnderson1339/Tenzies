@@ -3,6 +3,7 @@
 }
 
 body {
+  font-family: Inter, sans-serif;
   margin: 0;
   background-color: #0B2434;
   padding: 20px;
@@ -24,6 +25,15 @@ main {
   background-color: #F5F5F5;
   height: 100%;
   border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
+.dice-container {
+  display: grid;
+  grid-template: auto auto / repeat(5, 1fr);
+  gap: 20px;
+}
 
