@@ -18,12 +18,22 @@ function Main() {
         // alternative way of doing the same thing as the for loop method above:
         // return new Array(10)
         // .fill(0)
-        // .map(()=> Math.ceil(Math.random() * 6))        
-    
+        // .map(()=> Math.ceil(Math.random() * 6)) 
+
+        // console.log("Roll All New Dice array length ", diceArray[3])
+
         return diceArray
     }
     
-    const diceElements = dice.map(num => <Die value={num}/>)
+    function handleClickRollAllDice() {
+        setDice(generateAllNewdice())
+    }
+
+    const diceElements = dice.map(num => <Die value={num} rollDie={rollSingleDie}/>)
+
+    function rollSingleDie(id) {
+        console.log("rolling die", id)
+    }
 
     return (
         <>
@@ -31,7 +41,8 @@ function Main() {
                 <div className="dice-container">
                     {diceElements}
                 </div>
-            </main>
+                <button className="roll-all-dice" onClick={handleClickRollAllDice} >Roll All Dice</button>
+                </main>
         </>
     )
 }

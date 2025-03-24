@@ -9,7 +9,7 @@ function Die(props) {
             {/* <div className="die"> */}
                 {/* <span className="dieText">{props.dieText}</span> */}
             {/* </div> */}
-            <button className="die-button">{props.value}</button>
+            <button className="die-button" onClick={props.rollDie}>{props.value}</button>
         </>
     )
 }
