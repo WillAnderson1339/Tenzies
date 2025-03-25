@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
+import Confetti from 'react-confetti'
 
 import Die from './Die'
 
@@ -7,15 +8,28 @@ import '../css/Main.css'
 const numDice = 10
 
 function Main() {
-    const [dice, setDice] = React.useState(generateAllNewdice())
+    const [dice, setDice] = React.useState(() => generateAllNewdice())  // note the () here so the function is only called once at startup
     const [win, setWin] = React.useState(false)
+    const [numRolls, setNumRolls] = React.useState(1)
+    const [numDiceRolled, setNumDiceRolled] = React.useState(numDice)
+
+    const buttonRef = useRef(null)
+
+    useEffect(() => {
+        checkForWin()
+    }, [dice])
+
+    useEffect(() => {
+        // console.log("win effect")
+        win && buttonRef.current.focus()
+    }, [win])
 
     const diceElements = dice.map(dieObj => 
     <Die 
         key={dieObj.id}
         id={dieObj.id} 
         selected={dieObj.selected}
-        value={dieObj.randNum} 
+        value={dieObj.value} 
         // NOTE: instead of passing the id as a prop so it can be used as a param when calling the onClick handler 
         // the id could be passed in the onClick hadler definition like this: onClick={() => handleClickSingleDie(dieObj.id)}
         rollDie={handleClickSingleDie}      
@@ -23,12 +37,13 @@ function Main() {
     />)
     
     function generateAllNewdice() {
+        // console.log("generating all new dice")
         const diceArray = []
         let randNum = 0;
         for (let i = 0; i < numDice; i++) {
             randNum = Math.ceil(Math.random() * 6)
             // NOTE: instead of using the value of i as the id, could use nanoid() to generate a unique id
-            const dieObj = {id: i, selected: false, randNum: randNum}
+            const dieObj = {id: i, selected: false, value: randNum}
             // console.log("dieObj:", dieObj)
             diceArray.push(dieObj)
         }    
@@ -43,38 +58,55 @@ function Main() {
     }    
     
     function handleClickRollAllDice() {
-        console.log("rolling All dice")
+        // console.log("rolling All dice")
         setDice(generateAllNewdice())
-        setWin(false)
+        if (win === true) {
+            // set focus to the first button
+            const element = document.getElementById(0);
+            if (element) element.focus();
+
+            setNumRolls(1)
+            setNumDiceRolled(numDice)
+            setWin(false)
+        } 
+        else {
+            setNumRolls(prevNumRolls => prevNumRolls + 1)
+            setNumDiceRolled(prevNumDiceRolled => prevNumDiceRolled + numDice)
+        }
+
     }    
 
     function handleClickRollDice() {
-        console.log("rolling dice")
-        setDice(prevDiceArray =>
+        // console.log("rolling dice")
+        setDice(prevDiceArray => 
             prevDiceArray.map(die =>
-              die.selected === false
-                ? { ...die, randNum: Math.ceil(Math.random() * 6) }
+                die.selected === false
+                ? { ...die, value: Math.ceil(Math.random() * 6) }
                 : die
             )
-          );
-        checkForWin()
+        );
+
+        const unselectedCount = dice.filter(die => !die.selected).length;
+        setNumRolls(prevNumRolls => prevNumRolls + 1)
+        setNumDiceRolled(prevNumDiceRolled => prevNumDiceRolled + unselectedCount)
     }    
 
     function handleClickSingleDie(id) {
-        // console.log("rolling die", id)
+        console.log("rolling die", id)
     
         setDice(prevDiceArray =>
             prevDiceArray.map(die =>
               die.id === id
-                ? { ...die, randNum: Math.ceil(Math.random() * 6) }
+                ? { ...die, value: Math.ceil(Math.random() * 6) }
                 : die
             )
           );
-        checkForWin()
+          setNumRolls(prevNumRolls => prevNumRolls + 1)
+          setNumDiceRolled(prevNumDiceRolled => prevNumDiceRolled + 1)
     }
 
     function handleRightClickSingleDie(id) {
-        console.log("saving die", id)
+        // console.log("saving die", id)
 
         // when using the callback function with multiple lines use the {} and a return statement
         setDice(prevDiceArray => {
@@ -87,69 +119,47 @@ function Main() {
     }
 
     function checkForWin() {
-        console.log("*** Checking for win")
-        let allMatch = false
-        let thisMatch = false
-
-        dice.map(die => {
-            console.log("checking die.id:", die.id, "die.number:", die.randNum)
-            thisMatch = checkDieValueForWin(die.randNum)
-            if (thisMatch) {
-                allMatch = true
-            }
-        })
-        console.log ("current allMatch =", allMatch)
-        if (allMatch) {
-            console.log("All matched - You win!")
-            setWin(true)
-        }
-        else {
-            console.log("Did not match - You Lose!")
-            setWin(false)
-        }
-        // let win = true;
-        // for (let i = 0; i < dice.length; i++) {
-        //     console.log("dice[i].randNum", i, dice[i].randNum)
-        //     // if (dice[i].randNum !== 6) {
-        //     if (dice[i].randNum > 5) {
-        //         console.log("setting to false")
-        //         win = false;
-        //     }
-        // }
-        // if (win) {
-        //     console.log("You Win!")
-        //     setWin(true)
-        // }
-    }
-
-    function checkDieValueForWin(value) {
-        console.log("Checking for win value =", value)
-        let same = false;
-        for (let i = 0; i < dice.length; i++) {
-            console.log("dice id=", i, "die=", dice[i].randNum, "value=", value)
-            if (dice[i].randNum === value) {
-                console.log("matched! setting to true")
-                same = true;
-            }
-        }
-        // if (win) {
-            // console.log("You Win!")
-            // setWin(true)
-        // }
-        return same
+        const bReturn = dice.every(die => die.value === dice[0].value)
+        setWin(bReturn)
+        return bReturn
     }
 
     return (
         <>
             <main>
+                {win && <Confetti />}
+                <div aria-live="polite" className="sr-only" aria-atomic="true">
+                    {win && <p>You win! Press New Game to start again</p>}
+                </div>
                 <h1 className="main-heading">Tenzies</h1>
-                <p className="instructions">Roll until all dice are the same. Click each die to roll just that die. Right click each die to save it at its current value </p>
+                <div>
+                <p className="instructions">Roll until all dice are the same.</p>
+                <p className="instructions">Click each die to roll just that die.</p>
+                <p className="instructions">Right click each die to save it at its current value </p>
+                </div>
                 <div className="dice-container">
                     {diceElements}
                 </div>
-                <button className="roll-all-dice" onClick={handleClickRollAllDice} >Roll All Dice</button>
-                <button className="roll-all-dice" onClick={handleClickRollDice} >Roll Dice</button>
-                <span className={win ? "win-result" : "win-foo"}>{win ? "You Win!" : "You lose"}</span>
+                <div className="stats-container">
+                    <div className="stats-pair">
+                        <span>Number of Rolls:</span>
+                        <span>{numRolls}</span>
+                    </div>
+                    <div className="stats-pair">
+                        <span>Number of Dice Rolled:</span>
+                        <span>{numDiceRolled}</span>
+                    </div>
+                </div>
+                <button 
+                    className="roll-all-dice" 
+                    id="newGameId" 
+                    ref={buttonRef}
+                    onClick={handleClickRollAllDice}
+                >
+                    {win ? "New Game" : "Roll All Dice"} 
+                </button>
+                <button className={win ? "roll-all-dice buttonDisabled": "roll-all-dice"} onClick={handleClickRollDice}>Roll Dice</button>
+                <span className={win ? "win-result-true" : "win-result-false"}>{win ? "You Win!" : "You lose"}</span>
             </main>
         </>
     )

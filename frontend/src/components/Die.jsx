@@ -13,7 +13,9 @@ function Die(props) {
                 onContextMenu={(event) => { 
                     event.preventDefault();
                     props.saveDie(props.id);
-                }}>
+                }}
+                aria-pressed={props.selected}
+                aria-label={`Die with value ${props.value},${props.selected ? " selected" : " not selected"}`}>
             {props.value}
             </button>
         </>
