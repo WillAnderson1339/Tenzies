@@ -6,10 +6,16 @@ import '../css/Die.css'
 function Die(props) {
     return (
         <>
-            {/* <div className="die"> */}
-                {/* <span className="dieText">{props.dieText}</span> */}
-            {/* </div> */}
-            <button className="die-button" onClick={props.rollDie}>{props.value}</button>
+            <button 
+                className={props.selected ? "die-button die-button-selected" : "die-button die-button-not-selected"} 
+                id={props.id}
+                onClick={() => props.rollDie(props.id)}
+                onContextMenu={(event) => { 
+                    event.preventDefault();
+                    props.saveDie(props.id);
+                }}>
+            {props.value}
+            </button>
         </>
     )
 }

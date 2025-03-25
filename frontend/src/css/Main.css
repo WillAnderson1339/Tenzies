@@ -9,14 +9,32 @@ main {
     align-items: center;
   }
  
+.main-heading {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #475467;
+    /* margin-bottom: 10px; */
+}
+
+.instructions {
+    font-size: 1.0rem;
+    color: #475467;
+    margin: 20px;
+}
 
 .dice-container {
     display: grid;
     grid-template: auto auto / repeat(5, 1fr);
     gap: 20px;
+    /* margin-bottom: 40px; */
   }
 
-.roll-all-dice {
+button {
+    font-family: Karla, sans-serif;
+    cursor: pointer;
+}
+
+button.roll-all-dice {
     margin-top: 20px;
     height: 40px;
     width: 250px;
@@ -25,8 +43,25 @@ main {
     border: none;
     background-color: skyblue;
     color: #475467;
-    font-family: Inter, sans-serif;
     font-size: 1.5rem;
     font-weight: bold;
-    cursor: pointer;
+}
+
+win-result {
+    margin-top: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #e70c0c;
+    /* visibility: hidden; */
+}
+
+.win-result-hidden {
+    visibility: hidden;
+}
+
+.win-foo {
+    margin-top: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: cornflowerblue;
 }
